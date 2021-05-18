@@ -3,7 +3,7 @@ package com.example.game.controller;
 import com.example.game.model.Solution;
 import com.example.game.service.MainService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +16,8 @@ public class ChallengeController {
         this.mainService = mainService;
     }
 
-    @PostMapping(produces={"application/json"}, consumes="application/json")
-    @ResponseStatus(HttpStatus.OK)
-    public void postSolution(@RequestBody final Solution solution) {
-        mainService.postSolution(solution);
+    @PostMapping(produces = {"application/json"}, consumes = "application/json")
+    public HttpEntity postSolution(@RequestBody final Solution solution) {
+        return mainService.postSolution(solution);
     }
 }

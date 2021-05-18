@@ -19,6 +19,17 @@ public class Task {
     @Column(name = "output_test")
     private String outputTest;
 
+    public Task(Long taskId, String task_name, String description, int inputTest, String outputTest) {
+        this.taskId = taskId;
+        this.task_name = task_name;
+        this.description = description;
+        this.inputTest = inputTest;
+        this.outputTest = outputTest;
+    }
+
+    public Task() {
+    }
+
     public Long getTaskId() {
         return taskId;
     }
