@@ -1,20 +1,23 @@
 package com.example.game.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 
-@Entity
-@Table(name = "tasks")
+@Entity(name = "tasks")
+@JsonIgnoreProperties
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "task_id", nullable = false)
     private Long taskId;
-    private String taskName;
+    @Column(name = "task_name", nullable = false)
+    private String task_name;
     private String description;
+    @Column(name = "input_test")
     private int inputTest;
+    @Column(name = "output_test")
     private String outputTest;
-
-    public Task() {
-    }
 
     public Long getTaskId() {
         return taskId;
@@ -24,12 +27,12 @@ public class Task {
         this.taskId = taskId;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getTask_name() {
+        return task_name;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setTask_name(String taskName) {
+        this.task_name = taskName;
     }
 
     public String getDescription() {
