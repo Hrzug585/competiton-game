@@ -1,0 +1,23 @@
+<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+  
+  <label>
+    Name:
+    <input type="text" formControlName="name">
+  </label>
+
+  <label>
+    Solution:
+    <input type="text" formControlName="solution">
+  </label>
+
+  <label>
+    Task No:
+    <input type="text" formControlName="taskName">
+  </label>
+
+  <label>
+    Task ID:
+    <input type="text" formControlName="taskId">
+  </label>
+  <button type="submit" [disabled]="!profileForm.valid">Submit</button>
+</form>

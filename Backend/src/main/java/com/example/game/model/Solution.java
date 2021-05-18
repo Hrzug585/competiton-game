@@ -1,9 +1,18 @@
 package com.example.game.model;
 
 public class Solution {
+    private String submitter;
     private String script;
     private String taskName;
     private int taskId;
+
+    public String getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(String submitter) {
+        this.submitter = submitter;
+    }
 
     public String getScript() {
         return script;
