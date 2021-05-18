@@ -1,5 +1,6 @@
 package com.example.game.service;
 
+import com.example.game.model.CompilerResponse;
 import com.example.game.model.Solution;
 import com.example.game.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,6 @@ public class MainService {
         //get Task from db
         Task task = tasksService.getTaskById((long)solution.getTaskId());
 
-        compilerService.sendSolution(solution, task);
+        CompilerResponse compilerResponse = compilerService.sendSolution(solution);
     }
 }
