@@ -1,4 +1,4 @@
-package com.example.game.model;
+package com.example.game.model.domain;
 
 import lombok.Data;
 

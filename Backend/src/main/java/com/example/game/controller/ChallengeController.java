@@ -1,7 +1,7 @@
 package com.example.game.controller;
 
-import com.example.game.model.CompilerResponse;
 import com.example.game.model.Solution;
+import com.example.game.model.TestCaseReponse;
 import com.example.game.service.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /*
  * ChallengeController is responsible for challenges - simple coding tasks
  * */
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/challenge")
 public class ChallengeController {
-    private ChallengeService challengeService;
+    private final ChallengeService challengeService;
 
     @Autowired
     public ChallengeController(ChallengeService challengeService) {
@@ -26,7 +28,7 @@ public class ChallengeController {
     }
 
     @PostMapping(value = "/v1/submit", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public HttpEntity<CompilerResponse> postSolution(@RequestBody final Solution solution) {
-        return challengeService.analyzeSolution(solution);
+    public HttpEntity<List<TestCaseReponse>> postSolution(@RequestBody final Solution solution) {
+        return new HttpEntity<>(challengeService.analyzeSolution(solution));
     }
 }

@@ -1,6 +1,6 @@
 package com.example.game.repository;
 
-import com.example.game.model.Task;
+import com.example.game.model.domain.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
