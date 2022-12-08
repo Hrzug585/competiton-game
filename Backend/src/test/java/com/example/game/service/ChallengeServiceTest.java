@@ -2,16 +2,18 @@ package com.example.game.service;
 
 import com.example.game.model.CompilerResponse;
 import com.example.game.model.Solution;
-import com.example.game.model.Task;
+import com.example.game.model.TestCaseDTO;
+import com.example.game.model.TestCaseReponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 public class ChallengeServiceTest {
@@ -24,35 +26,53 @@ public class ChallengeServiceTest {
     public void setUp() {
         tasksService = Mockito.mock(TasksService.class);
         compilerService = Mockito.mock(CompilerService.class);
-        challengeService = new ChallengeService(compilerService);
+        challengeService = new ChallengeService(compilerService, tasksService);
 
     }
 
     @Test
-    public void whenOutputsAreTheSameReturnHttpOk() {
-        Task task = new Task(1l, "task_name", "description", 10, "0 1 1 2 3 5 8 13 21 34 55");
-        CompilerResponse compilerResponse = new CompilerResponse();
-        compilerResponse.setOutput("0 1 1 2 3 5 8 13 21 34 55");
-        when(tasksService.getTaskById(anyLong())).thenReturn(task);
-        when(compilerService.sendSolution(any())).thenReturn(compilerResponse);
+    public void whenNoTestCasesReturnsEmptyResponse() {
+        // Arrange
+        var solution = new Solution();
 
-        ResponseEntity response = challengeService.analyzeSolution(new Solution());
-        ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
+        when(tasksService.createTestCases(solution)).thenReturn(new ArrayList<>());
 
-        Assert.assertEquals(expectedResponse, response);
+        // Act
+        var response = challengeService.analyzeSolution(solution);
+
+        // Assert
+        assert(response.isEmpty());
     }
 
     @Test
-    public void whenOutputsAreDifferentReturnBadRequest() {
-        Task task = new Task(1l, "task_name", "description", 10, "test");
-        CompilerResponse compilerResponse = new CompilerResponse();
-        compilerResponse.setOutput("0 1 1 2 3 5 8 13 21 34 55");
-        when(tasksService.getTaskById(anyLong())).thenReturn(task);
+    public void whenAnalyzeSolutionMapsResponseFromCompiler() {
+        // Arrange
+        var expectedResponse = Collections.singletonList(TestCaseReponse.builder()
+                .expectedOutput("true")
+                .output("true")
+                .statusCode(200)
+                .memory(123));
+
+        var solution = new Solution();
+        solution.setScript("script");
+        solution.setTaskId(1);
+        solution.setTaskName("task_name");
+
+        var compilerResponse = new CompilerResponse();
+        compilerResponse.setOutput("true");
+        compilerResponse.setStatusCode(200);
+        compilerResponse.setMemory(123);
+
+        var testCases = Collections.singletonList(TestCaseDTO.builder().id(1).output("true").script("script").build());
+
+        when(tasksService.createTestCases(solution)).thenReturn(testCases);
         when(compilerService.sendSolution(any())).thenReturn(compilerResponse);
 
-        ResponseEntity response = challengeService.analyzeSolution(new Solution());
-        ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.BAD_REQUEST);
+        // Act
+        var response = challengeService.analyzeSolution(solution);
 
-        Assert.assertEquals(expectedResponse, response);
+        // Assert
+        assertThat(response).usingRecursiveComparison().isEqualTo(expectedResponse);
     }
+
 }
