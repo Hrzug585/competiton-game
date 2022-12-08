@@ -3,62 +3,46 @@ package com.example.game.service;
 import com.example.game.model.CompilerRequest;
 import com.example.game.model.CompilerResponse;
 import com.example.game.model.Solution;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.jboss.forge.roaster.Roaster;
+import org.jboss.forge.roaster.model.source.JavaClassSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-@Slf4j
 @Service
 public class CompilerService {
-    @Value("${compiler.endpoint.url}")
-    private String url;
-    @Value("${compiler.endpoint.userAgent}")
-    private String userAgent;
-    @Value("${compiler.endpoint.clientID}")
-    private String clientId;
-    @Value("${compiler.endpoint.clientSecret}")
-    private String clientSecret;
-    @Value("${compiler.endpoint.language}")
-    private String language;
-    @Value("${compiler.endpoint.versionIndex}")
-    private String versionIndex;
+    private ConfigurationHelper configurationHelper;
+    private RestTemplate restTemplate;
+
+    @Autowired
+    public CompilerService(ConfigurationHelper configurationHelper, RestTemplate restTemplate) {
+        this.configurationHelper = configurationHelper;
+        this.restTemplate = restTemplate;
+    }
 
     public CompilerResponse sendSolution(Solution solution) {
-        CompilerRequest compilerRequest = new CompilerRequest(clientId, clientSecret, language, versionIndex, solution.getScript());
-        ObjectMapper objectMapper = new ObjectMapper();
-        RestTemplate restTemplate = new RestTemplate();
-        String input = "";
 
-        try {
-            input = objectMapper.writeValueAsString(compilerRequest);
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-        }
+        JavaClassSource javaClass = Roaster.parse(JavaClassSource.class, solution.getScript());
+        javaClass.addMethod()
+                .setPublic()
+                .setName("main")
+                .setStatic(true)
+                .setReturnTypeVoid()
+                .setBody("System.out.println(isEven(1));")
+                .addParameter("java.lang.String[]", "args");
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        httpHeaders.setAccept(new ArrayList<MediaType>(Arrays.asList(MediaType.ALL)));
-        httpHeaders.set("User-Agent", userAgent);
+        CompilerRequest compilerRequest = CompilerRequest.builder()
+                .clientId(configurationHelper.getClientId())
+                .clientSecret(configurationHelper.getClientSecret())
+                .language(configurationHelper.getLanguage())
+                .versionIndex(0)
+                .script(javaClass.toString())
+                .build();
 
-        HttpEntity<String> httpEntity = new HttpEntity<>(input, httpHeaders);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
-
-        String responseString = responseEntity.getBody();
-        CompilerResponse compilerResponse = null;
-        try {
-            compilerResponse = objectMapper.readValue(responseString, CompilerResponse.class);
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-        }
-        log.debug(responseString);
-
-        return compilerResponse;
+        ResponseEntity<CompilerResponse> responseEntity = restTemplate.exchange(configurationHelper.getUrl(), HttpMethod.POST, new HttpEntity<>(compilerRequest), CompilerResponse.class);
+        return responseEntity.getBody();
     }
 }

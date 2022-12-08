@@ -5,6 +5,8 @@ import com.example.game.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TasksService {
     //TODO call repository service and fetch data
@@ -16,7 +18,10 @@ public class TasksService {
     }
 
     public Task getTaskById(Long taskId) {
-        System.out.println(taskRepository.findTaskByTaskId(taskId));
         return taskRepository.findTaskByTaskId(taskId);
+    }
+
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
     }
 }

@@ -14,8 +14,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-public class MainServiceTest {
-    private MainService mainService;
+public class ChallengeServiceTest {
+    private ChallengeService challengeService;
     private TasksService tasksService;
     private CompilerService compilerService;
 
@@ -24,7 +24,7 @@ public class MainServiceTest {
     public void setUp() {
         tasksService = Mockito.mock(TasksService.class);
         compilerService = Mockito.mock(CompilerService.class);
-        mainService = new MainService(tasksService, compilerService);
+        challengeService = new ChallengeService(compilerService);
 
     }
 
@@ -36,7 +36,7 @@ public class MainServiceTest {
         when(tasksService.getTaskById(anyLong())).thenReturn(task);
         when(compilerService.sendSolution(any())).thenReturn(compilerResponse);
 
-        ResponseEntity response = mainService.postSolution(new Solution());
+        ResponseEntity response = challengeService.analyzeSolution(new Solution());
         ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.OK);
 
         Assert.assertEquals(expectedResponse, response);
@@ -50,7 +50,7 @@ public class MainServiceTest {
         when(tasksService.getTaskById(anyLong())).thenReturn(task);
         when(compilerService.sendSolution(any())).thenReturn(compilerResponse);
 
-        ResponseEntity response = mainService.postSolution(new Solution());
+        ResponseEntity response = challengeService.analyzeSolution(new Solution());
         ResponseEntity expectedResponse = new ResponseEntity(HttpStatus.BAD_REQUEST);
 
         Assert.assertEquals(expectedResponse, response);

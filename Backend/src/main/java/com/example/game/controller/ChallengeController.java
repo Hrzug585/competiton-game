@@ -1,23 +1,32 @@
 package com.example.game.controller;
 
+import com.example.game.model.CompilerResponse;
 import com.example.game.model.Solution;
-import com.example.game.service.MainService;
+import com.example.game.service.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/*
+ * ChallengeController is responsible for challenges - simple coding tasks
+ * */
 
 @RestController
-@RequestMapping("/v1/challenge")
+@RequestMapping("/challenge")
 public class ChallengeController {
-    private MainService mainService;
+    private ChallengeService challengeService;
 
     @Autowired
-    public ChallengeController(MainService mainService) {
-        this.mainService = mainService;
+    public ChallengeController(ChallengeService challengeService) {
+        this.challengeService = challengeService;
     }
 
-    @PostMapping(produces = {"application/json"}, consumes = "application/json")
-    public HttpEntity postSolution(@RequestBody final Solution solution) {
-        return mainService.postSolution(solution);
+    @PostMapping(value = "/v1/submit", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public HttpEntity<CompilerResponse> postSolution(@RequestBody final Solution solution) {
+        return challengeService.analyzeSolution(solution);
     }
 }
